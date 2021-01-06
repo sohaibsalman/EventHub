@@ -1,12 +1,12 @@
-import React, { FormEvent, useState } from "react";
-import { Button, Form, Segment } from "semantic-ui-react";
-import { IActivity } from "../../../app/models/activity";
-import { v4 as uuid } from "uuid";
+import React, { FormEvent, useContext, useState } from 'react';
+import { Button, Form, Segment } from 'semantic-ui-react';
+import { IActivity } from '../../../app/models/activity';
+import { v4 as uuid } from 'uuid';
+import ActivityStore from '../../../app/stores/activityStore';
 
 export interface IProps {
   setEditMode: (editMode: boolean) => void;
   activity: IActivity | null;
-  createActivity: (activity: IActivity) => void;
   editActivity: (activity: IActivity) => void;
   submitting: boolean;
 }
@@ -14,22 +14,23 @@ export interface IProps {
 const ActivityForm: React.FC<IProps> = ({
   setEditMode,
   activity: initialFormState,
-  createActivity,
   editActivity,
   submitting,
 }) => {
+  const activityStore = useContext(ActivityStore);
+  const { createActivity } = activityStore;
   const initalizeForm = () => {
     if (initialFormState) {
       return initialFormState;
     } else {
       return {
-        id: "",
-        title: "",
-        description: "",
-        category: "",
-        date: "",
-        city: "",
-        venue: "",
+        id: '',
+        title: '',
+        description: '',
+        category: '',
+        date: '',
+        city: '',
+        venue: '',
       };
     }
   };
