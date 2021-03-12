@@ -4,14 +4,20 @@ import agent from '../../api/agent';
 import { IActivity } from '../models/activity';
 
 class ActivityStore {
+  constructor() {
+    makeAutoObservable(this);
+  }
+
   activities: IActivity[] = [];
   loadingInitial = false;
   selectedActivity: IActivity | undefined;
   editMode = false;
   submitting = false;
 
-  constructor() {
-    makeAutoObservable(this);
+  get activitiesByDate() {
+    return this.activities.sort(
+      (a, b) => Date.parse(a.date) - Date.parse(b.date)
+    );
   }
 
   loadActivities = async () => {
