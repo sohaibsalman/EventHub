@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
-import React, { SyntheticEvent, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Button, Item, Label, Segment } from 'semantic-ui-react';
-import { IActivity } from '../../../app/models/activity';
 import ActivityStore from '../../../app/stores/activityStore';
 
 const ActiviyList: React.FC = () => {

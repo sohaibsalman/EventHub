@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import * as React from 'react';
 import { Button, Card, Image } from 'semantic-ui-react';
-import { IActivity } from '../../../app/models/activity';
 import ActivityStore from '../../../app/stores/activityStore';
 
 const ActivityDetails: React.FC = () => {
