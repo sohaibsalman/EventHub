@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { createContext } from 'react';
+import { createContext, SyntheticEvent } from 'react';
 import agent from '../../api/agent';
 import { IActivity } from '../models/activity';
 
@@ -8,16 +8,18 @@ class ActivityStore {
     makeAutoObservable(this);
   }
 
+  activityRegistry = new Map();
   activities: IActivity[] = [];
   loadingInitial = false;
   selectedActivity: IActivity | undefined;
   editMode = false;
   submitting = false;
+  target = '';
 
   get activitiesByDate() {
-    return this.activities.sort(
-      (a, b) => Date.parse(a.date) - Date.parse(b.date)
-    );
+    return Array.from(this.activityRegistry.values())
+      .slice()
+      .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
   }
 
   loadActivities = async () => {
@@ -26,7 +28,7 @@ class ActivityStore {
       const activities = await agent.Activities.list();
       activities.forEach((activity) => {
         activity.date = activity.date.split('.')[0];
-        this.activities.push(activity);
+        this.activityRegistry.set(activity.id, activity);
       });
     } catch (error) {
       console.log(error);
@@ -40,7 +42,7 @@ class ActivityStore {
 
     try {
       await agent.Activities.create(activity);
-      this.activities.push(activity);
+      this.activityRegistry.set(activity.id, activity);
     } catch (error) {
       console.log(error);
     } finally {
@@ -49,13 +51,59 @@ class ActivityStore {
     }
   };
 
+  editActivity = async (activity: IActivity) => {
+    this.submitting = true;
+
+    try {
+      await agent.Activities.update(activity);
+      this.activityRegistry.set(activity.id, activity);
+      this.selectedActivity = activity;
+      this.editMode = false;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.submitting = false;
+    }
+  };
+
+  deleteActivity = async (
+    event: SyntheticEvent<HTMLButtonElement>,
+    id: string
+  ) => {
+    this.submitting = true;
+    this.target = event.currentTarget.name;
+
+    try {
+      await agent.Activities.delete(id);
+      this.activityRegistry.delete(id);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.submitting = false;
+      this.target = ' ';
+    }
+  };
+
   openCreateForm = () => {
     this.editMode = true;
     this.selectedActivity = undefined;
   };
 
+  openEditForm = (id: string) => {
+    this.selectedActivity = this.activityRegistry.get(id);
+    this.editMode = true;
+  };
+
+  cancelSelectedActivity = () => {
+    this.selectedActivity = undefined;
+  };
+
+  cancelFormOpen = () => {
+    this.editMode = false;
+  };
+
   selectActivity = (id: string) => {
-    this.selectedActivity = this.activities.find((a) => a.id === id);
+    this.selectedActivity = this.activityRegistry.get(id);
     this.editMode = false;
   };
 }
