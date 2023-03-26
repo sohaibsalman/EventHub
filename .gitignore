@@ -478,5 +478,4 @@ $RECYCLE.BIN/
 
 .vscode/
 appsettings.json
-*.db-shm
-*.db-wal
+*.db*

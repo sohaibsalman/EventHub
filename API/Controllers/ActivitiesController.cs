@@ -28,7 +28,6 @@ namespace API.Controllers
         public async Task<IActionResult> UpdateActivity(Guid id, Activity activity)
         {
             activity.Id = id;
-            Console.WriteLine(activity.Id);
             return Ok(await Mediator.Send(new Edit.Command { Activity = activity }));
         }
 
