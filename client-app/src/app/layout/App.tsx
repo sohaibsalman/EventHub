@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container } from "semantic-ui-react";
+import { observer } from "mobx-react-lite";
 import { v4 as uuid } from "uuid";
 
 import agent from "../api/agent";
@@ -7,6 +8,7 @@ import Navbar from "./Navbar";
 import { Activity } from "../models/activity";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 import LoadingComponent from "./LoadingComponent";
+import { useStore } from "../stores/store";
 
 function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -17,16 +19,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  const { activityStore } = useStore();
+
   useEffect(() => {
-    agent.Activities.list().then((response) => {
-      const activities = response.map((activity) => {
-        activity.date = activity.date.split("T")[0];
-        return activity;
-      });
-      setActivities(activities);
-      setLoading(false);
-    });
-  }, []);
+    activityStore.loadActivities();
+  }, [activityStore]);
 
   const handleSelectActivity = (id: string) => {
     setSelectedActivity(activities.find((x) => x.id === id));
@@ -77,14 +74,15 @@ function App() {
     });
   };
 
-  if (loading) return <LoadingComponent content="Loading app..." />;
+  if (activityStore.loadingInitial)
+    return <LoadingComponent content="Loading app..." />;
 
   return (
     <>
       <Navbar onFormOpen={handleFormOpen} />
       <Container style={{ marginTop: "7em" }}>
         <ActivityDashboard
-          activities={activities}
+          activities={activityStore.activities}
           selectedActivity={selectedActivity}
           submitting={submitting}
           onSelectActivity={handleSelectActivity}
@@ -100,4 +98,4 @@ function App() {
   );
 }
 
-export default App;
+export default observer(App);
