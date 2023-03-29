@@ -1,15 +1,27 @@
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Button, Form, Segment } from "semantic-ui-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { v4 as uuid } from "uuid";
 
 import { useStore } from "../../../app/stores/store";
+import { Activity } from "../../../app/models/activity";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
 
 function ActivityForm() {
   const { activityStore } = useStore();
-  const { selectedActivity, createActivity, updateActivity, loading } =
-    activityStore;
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const initialState = selectedActivity ?? {
+  const {
+    createActivity,
+    updateActivity,
+    loading,
+    loadingInitial,
+    loadActivity,
+  } = activityStore;
+
+  const [activity, setActivity] = useState<Activity>({
     id: "",
     title: "",
     category: "",
@@ -17,9 +29,11 @@ function ActivityForm() {
     date: "",
     description: "",
     venue: "",
-  };
+  });
 
-  const [activity, setActivity] = useState(initialState);
+  useEffect(() => {
+    if (id) loadActivity(id).then((activity) => setActivity(activity!));
+  }, [id, loadActivity]);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
@@ -28,9 +42,17 @@ function ActivityForm() {
     setActivity({ ...activity, [name]: value });
   };
 
-  const handleSubmit = () => {
-    activity.id ? updateActivity(activity) : createActivity(activity);
+  const handleSubmit = async () => {
+    if (!activity.id) {
+      activity.id = uuid();
+      await createActivity(activity);
+    } else {
+      await updateActivity(activity);
+    }
+    navigate(`/activities/${activity.id}`);
   };
+
+  if (loadingInitial) return <LoadingComponent content="Loading details..." />;
 
   return (
     <Segment clearing>
@@ -79,7 +101,13 @@ function ActivityForm() {
           type="submit"
           loading={loading}
         />
-        <Button floated="right" content="Cancel" type="button" />
+        <Button
+          floated="right"
+          content="Cancel"
+          type="button"
+          as={Link}
+          to="/activities"
+        />
       </Form>
     </Segment>
   );
