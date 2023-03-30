@@ -21,7 +21,7 @@ function ActivityDetails() {
   const { id } = useParams();
   useEffect(() => {
     if (id) loadActivity(id);
-  }, []);
+  }, [id, loadActivity]);
 
   if (!activity || loadingInitial)
     return <LoadingComponent content="Loading..." />;
