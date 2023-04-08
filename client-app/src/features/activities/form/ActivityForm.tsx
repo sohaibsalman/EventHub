@@ -13,6 +13,7 @@ import AppInputField from "../../../app/common/form/AppInputField";
 import AppTextArea from "../../../app/common/form/AppTextArea";
 import AppSelectField from "../../../app/common/form/AppSelectField";
 import { categoryOptions } from "../../../app/common/options/categoryOptions";
+import AppDateField from "../../../app/common/form/AppDateField";
 
 function ActivityForm() {
   const { activityStore } = useStore();
@@ -32,7 +33,7 @@ function ActivityForm() {
     title: "",
     category: "",
     city: "",
-    date: "",
+    date: null,
     description: "",
     venue: "",
   });
@@ -90,7 +91,13 @@ function ActivityForm() {
               name="category"
               options={categoryOptions}
             />
-            <AppInputField placeholder="Date" name="date" />
+            <AppDateField
+              placeholderText="Date"
+              name="date"
+              showTimeSelect
+              timeCaption="time"
+              dateFormat="MMMM d, yyyy h:mm aa"
+            />
             <AppInputField placeholder="City" name="city" />
             <AppInputField placeholder="Venue" name="venue" />
             <Button
