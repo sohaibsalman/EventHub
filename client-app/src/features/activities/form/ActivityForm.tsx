@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, useEffect, useState } from "react";
-import { Button, Segment } from "semantic-ui-react";
+import { useEffect, useState } from "react";
+import { Button, Header, Segment } from "semantic-ui-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import { Form, Formik } from "formik";
@@ -51,22 +51,15 @@ function ActivityForm() {
     venue: Yup.string().required("Activity venue is required"),
   });
 
-  // const handleInputChange = (
-  //   event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
-  // ) => {
-  //   const { name, value } = event.target;
-  //   setActivity({ ...activity, [name]: value });
-  // };
-
-  // const handleSubmit = async () => {
-  //   if (!activity.id) {
-  //     activity.id = uuid();
-  //     await createActivity(activity);
-  //   } else {
-  //     await updateActivity(activity);
-  //   }
-  //   navigate(`/activities/${activity.id}`);
-  // };
+  const handleFormSubmit = async (activity: Activity) => {
+    if (!activity.id) {
+      activity.id = uuid();
+      await createActivity(activity);
+    } else {
+      await updateActivity(activity);
+    }
+    navigate(`/activities/${activity.id}`);
+  };
 
   if (loadingInitial) return <LoadingComponent content="Loading details..." />;
 
@@ -76,10 +69,11 @@ function ActivityForm() {
         enableReinitialize
         initialValues={activity}
         validationSchema={validationSchema}
-        onSubmit={(value) => console.log(value)}
+        onSubmit={(value) => handleFormSubmit(value)}
       >
-        {({ handleSubmit }) => (
+        {({ handleSubmit, isSubmitting, dirty, isValid }) => (
           <Form onSubmit={handleSubmit} autoComplete="off" className="ui form">
+            <Header color="teal" sub content="Activity Details" />
             <AppInputField placeholder="Title" name="title" />
             <AppTextArea
               placeholder="Description"
@@ -98,6 +92,8 @@ function ActivityForm() {
               timeCaption="time"
               dateFormat="MMMM d, yyyy h:mm aa"
             />
+
+            <Header color="teal" sub content="Location Details" />
             <AppInputField placeholder="City" name="city" />
             <AppInputField placeholder="Venue" name="venue" />
             <Button
@@ -106,6 +102,7 @@ function ActivityForm() {
               positive
               type="submit"
               loading={loading}
+              disabled={isSubmitting || !dirty || !isValid}
             />
             <Button
               floated="right"
