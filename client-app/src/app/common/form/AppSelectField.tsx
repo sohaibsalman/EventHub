@@ -8,7 +8,7 @@ interface Props {
   options: any;
 }
 
-function AppInputField(props: Props) {
+function AppSelectField(props: Props) {
   const [field, meta, helpers] = useField(props.name);
   return (
     <Form.Field error={meta.touched && !!meta.error}>
@@ -34,4 +34,4 @@ function AppInputField(props: Props) {
   );
 }
 
-export default AppInputField;
+export default AppSelectField;

@@ -8,7 +8,7 @@ interface Props {
   rows: number;
 }
 
-function AppInputField(props: Props) {
+function AppTextArea(props: Props) {
   const [field, meta] = useField(props.name);
   return (
     <Form.Field error={meta.touched && !!meta.error}>
@@ -27,4 +27,4 @@ function AppInputField(props: Props) {
   );
 }
 
-export default AppInputField;
+export default AppTextArea;

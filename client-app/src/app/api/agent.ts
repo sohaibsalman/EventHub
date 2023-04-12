@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Activity } from "../models/activity";
 import { router } from "../router/Routes";
 import { store } from "../stores/store";
+import { User, UserFormValues } from "../models/user";
 
 const sleep = (delay: number) => {
   return new Promise((resolve) => {
@@ -68,8 +69,17 @@ const Activities = {
   delete: (id: string) => requests.del<void>(`/activities/${id}`),
 };
 
+const Users = {
+  current: () => requests.get<User>("/account"),
+  login: (userForm: UserFormValues) =>
+    requests.post<User>("/account/login", userForm),
+  register: (userForm: UserFormValues) =>
+    requests.post<User>("/account/register", userForm),
+};
+
 const agent = {
   Activities,
+  Users,
 };
 
 export default agent;
