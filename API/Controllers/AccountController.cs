@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using API.DTOs;
 using API.Services;
 using Domain;
@@ -8,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
@@ -22,6 +22,7 @@ namespace API.Controllers
             _userManager = userManager;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
@@ -31,9 +32,10 @@ namespace API.Controllers
             bool isCorrectPassword = await _userManager.CheckPasswordAsync(user, loginDto.Password);
             if (!isCorrectPassword) return Unauthorized();
 
-            return Ok(GetUser(user));
+            return Ok(CreateUserObject(user));
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
@@ -51,12 +53,19 @@ namespace API.Controllers
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (result.Succeeded)
-                return Ok(GetUser(user));
+                return Ok(CreateUserObject(user));
 
             return BadRequest(result.Errors);
         }
 
-        private UserDto GetUser(AppUser user)
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+            return Ok(CreateUserObject(user));
+        }
+
+        private UserDto CreateUserObject(AppUser user)
         {
             return new UserDto
             {
