@@ -1,5 +1,5 @@
 import { ErrorMessage, Form, Formik } from "formik";
-import { Button, Label } from "semantic-ui-react";
+import { Button, Header, Label } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 
 import AppInputField from "../../app/common/form/AppInputField";
@@ -19,6 +19,12 @@ function LoginForm() {
     >
       {({ handleSubmit, isSubmitting, errors }) => (
         <Form className="ui form" onSubmit={handleSubmit} autoComplete="off">
+          <Header
+            content="Login Form"
+            color="teal"
+            size="huge"
+            textAlign="center"
+          />
           <AppInputField name="email" placeholder="Your Email Address" />
           <AppInputField
             name="password"

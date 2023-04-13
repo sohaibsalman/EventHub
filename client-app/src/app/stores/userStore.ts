@@ -22,6 +22,19 @@ export default class UserStore {
       store.commonStore.setToken(user.token);
       runInAction(() => (this.user = user));
       router.navigate("/activities");
+      store.modalStore.closeModal();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  register = async (userForm: UserFormValues) => {
+    try {
+      const user = await agent.Users.register(userForm);
+      store.commonStore.setToken(user.token);
+      runInAction(() => (this.user = user));
+      router.navigate("/activities");
+      store.modalStore.closeModal();
     } catch (error) {
       throw error;
     }

@@ -40,9 +40,15 @@ namespace API.Controllers
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
             if (await _userManager.Users.AnyAsync(user => user.UserName == registerDto.Username))
-                return BadRequest("User with username already exists");
+            {
+                ModelState.AddModelError("email", "User with this username already exists");
+                return ValidationProblem();
+            }
             if (await _userManager.Users.AnyAsync(user => user.Email == registerDto.Email))
-                return BadRequest("User with email already exists");
+            {
+                ModelState.AddModelError("email", "User with this email already exists");
+                return ValidationProblem();
+            }
 
             var user = new AppUser
             {
