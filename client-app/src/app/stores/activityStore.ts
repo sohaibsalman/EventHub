@@ -4,6 +4,7 @@ import { v4 as uuid } from "uuid";
 
 import agent from "../api/agent";
 import { Activity } from "../models/activity";
+import { store } from "./store";
 
 export default class ActivityStore {
   activitiesRegistry = new Map<string, Activity>();
@@ -135,6 +136,16 @@ export default class ActivityStore {
 
   private setActivity(activity: Activity) {
     activity.date = new Date(activity.date!);
+    const user = store.userStore.user;
+    if (user) {
+      activity.isGoing = activity.attendees?.some(
+        (x) => x.username === user.username
+      );
+      activity.isHost = activity.hostUsername === user.username;
+      activity.host = activity.attendees?.find(
+        (x) => x.username === activity.hostUsername
+      );
+    }
     this.activitiesRegistry.set(activity.id, activity);
   }
 }
