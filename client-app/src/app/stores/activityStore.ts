@@ -160,6 +160,24 @@ export default class ActivityStore {
     }
   };
 
+  cancelActivity = async () => {
+    this.loading = true;
+    try {
+      await agent.Activities.attend(this.selectedActivity!.id);
+      runInAction(() => {
+        this.selectedActivity!.isCancelled =
+          !this.selectedActivity?.isCancelled;
+        this.activitiesRegistry.set(
+          this.selectedActivity!.id,
+          this.selectedActivity!
+        );
+      });
+    } catch (error) {
+    } finally {
+      runInAction(() => (this.loading = false));
+    }
+  };
+
   private getActivity(id: string) {
     return this.activitiesRegistry.get(id);
   }
