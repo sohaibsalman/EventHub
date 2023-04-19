@@ -3,7 +3,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { v4 as uuid } from "uuid";
 
 import agent from "../api/agent";
-import { Activity } from "../models/activity";
+import { Activity, ActivityFormValues } from "../models/activity";
 import { store } from "./store";
 import { Profile } from "../models/profile";
 
@@ -78,40 +78,39 @@ export default class ActivityStore {
     this.selectedActivity = state;
   };
 
-  createActivity = async (activity: Activity) => {
-    this.loading = true;
+  createActivity = async (activity: ActivityFormValues) => {
+    const user = store.userStore.user;
+    const attendee = new Profile(user!);
     try {
       activity.id = uuid();
       await agent.Activities.create(activity);
+      const newActivity = new Activity(activity);
+      newActivity.hostUsername = user?.username;
+      newActivity.attendees = [attendee];
+      this.setActivity(newActivity);
       runInAction(() => {
-        this.activitiesRegistry.set(activity.id, activity);
-        this.selectedActivity = activity;
+        this.selectedActivity = newActivity;
       });
     } catch (error) {
       console.log(error);
-    } finally {
-      runInAction(() => {
-        this.editMode = false;
-        this.loading = false;
-      });
     }
   };
 
-  updateActivity = async (activity: Activity) => {
-    this.loading = true;
+  updateActivity = async (activity: ActivityFormValues) => {
     try {
       await agent.Activities.update(activity);
       runInAction(() => {
-        this.activitiesRegistry.set(activity.id, activity);
-        this.selectedActivity = activity;
+        if (activity.id) {
+          let updatedActivity = {
+            ...this.getActivity(activity.id),
+            ...activity,
+          };
+          this.setActivity(updatedActivity as Activity);
+          this.selectedActivity = updatedActivity as Activity;
+        }
       });
     } catch (error) {
       console.log(error);
-    } finally {
-      runInAction(() => {
-        this.editMode = false;
-        this.loading = false;
-      });
     }
   };
 

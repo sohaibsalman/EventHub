@@ -7,7 +7,7 @@ import { Form, Formik } from "formik";
 import * as Yup from "yup";
 
 import { useStore } from "../../../app/stores/store";
-import { Activity } from "../../../app/models/activity";
+import { ActivityFormValues } from "../../../app/models/activity";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import AppInputField from "../../../app/common/form/AppInputField";
 import AppTextArea from "../../../app/common/form/AppTextArea";
@@ -20,26 +20,18 @@ function ActivityForm() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const {
-    createActivity,
-    updateActivity,
-    loading,
-    loadingInitial,
-    loadActivity,
-  } = activityStore;
+  const { createActivity, updateActivity, loadingInitial, loadActivity } =
+    activityStore;
 
-  const [activity, setActivity] = useState<Activity>({
-    id: "",
-    title: "",
-    category: "",
-    city: "",
-    date: null,
-    description: "",
-    venue: "",
-  });
+  const [activity, setActivity] = useState<ActivityFormValues>(
+    new ActivityFormValues()
+  );
 
   useEffect(() => {
-    if (id) loadActivity(id).then((activity) => setActivity(activity!));
+    if (id)
+      loadActivity(id).then((activity) =>
+        setActivity(new ActivityFormValues(activity))
+      );
   }, [id, loadActivity]);
 
   const validationSchema = Yup.object({
@@ -51,7 +43,7 @@ function ActivityForm() {
     venue: Yup.string().required("Activity venue is required"),
   });
 
-  const handleFormSubmit = async (activity: Activity) => {
+  const handleFormSubmit = async (activity: ActivityFormValues) => {
     if (!activity.id) {
       activity.id = uuid();
       await createActivity(activity);
@@ -101,7 +93,7 @@ function ActivityForm() {
               content="Submit"
               positive
               type="submit"
-              loading={loading}
+              loading={isSubmitting}
               disabled={isSubmitting || !dirty || !isValid}
             />
             <Button
