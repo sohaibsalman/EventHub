@@ -16,15 +16,19 @@ function ProfilePage() {
 
   useEffect(() => {
     if (username) loadProfile(username);
-  }, [loadProfile]);
+  }, [loadProfile, username]);
 
   if (loadingProfile) return <LoadingComponent content="Loading profile..." />;
 
   return (
     <Grid>
       <Grid.Column width={16}>
-        {profile && <ProfileHeader profile={profile} />}
-        <ProfileContent />
+        {profile && (
+          <>
+            <ProfileHeader profile={profile} />
+            <ProfileContent profile={profile} />
+          </>
+        )}
       </Grid.Column>
     </Grid>
   );
