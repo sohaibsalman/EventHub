@@ -95,6 +95,8 @@ const Profiles = {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
+  setMain: (id: string) => requests.post<void>(`/photos/${id}/setMain`, {}),
+  deletePhoto: (id: string) => requests.del<void>(`/photos/${id}`),
 };
 
 const agent = {
