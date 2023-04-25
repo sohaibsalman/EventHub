@@ -89,4 +89,18 @@ export class ProfileStore {
       runInAction(() => (this.loading = false));
     }
   };
+
+  updateProfile = async (profileForm: Partial<Profile>) => {
+    try {
+      await agent.Profiles.updateProfile(profileForm);
+      store.userStore.setDisplayName(profileForm.displayName!);
+      runInAction(() => {
+        if (this.profile) {
+          this.profile = { ...this.profile, ...profileForm };
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }

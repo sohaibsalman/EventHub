@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 
 import ProfilePhotos from "./ProfilePhotos";
 import { Profile } from "../../app/models/profile";
+import ProfileAbout from "./ProfileAbout";
 
 interface Props {
   profile: Profile;
@@ -10,7 +11,7 @@ interface Props {
 
 function ProfileContent({ profile }: Props) {
   const panes = [
-    { menuItem: "About", render: () => <Tab.Pane>About Content</Tab.Pane> },
+    { menuItem: "About", render: () => <ProfileAbout profile={profile} /> },
     { menuItem: "Photos", render: () => <ProfilePhotos profile={profile} /> },
     { menuItem: "Event", render: () => <Tab.Pane>Event Content</Tab.Pane> },
     {
