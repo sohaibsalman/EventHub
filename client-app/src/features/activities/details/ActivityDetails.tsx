@@ -16,12 +16,15 @@ function ActivityDetails() {
     selectedActivity: activity,
     loadingInitial,
     loadActivity,
+    clearSelectedActivity,
   } = activityStore;
 
   const { id } = useParams();
   useEffect(() => {
     if (id) loadActivity(id);
-  }, [id, loadActivity]);
+
+    return () => clearSelectedActivity();
+  }, [id, loadActivity, clearSelectedActivity]);
 
   if (!activity || loadingInitial)
     return <LoadingComponent content="Loading..." />;

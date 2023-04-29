@@ -196,4 +196,8 @@ export default class ActivityStore {
     }
     this.activitiesRegistry.set(activity.id, activity);
   }
+
+  clearSelectedActivity = () => {
+    this.selectedActivity = undefined;
+  };
 }
