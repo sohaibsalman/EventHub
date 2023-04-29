@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Application.Core;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Application.Interfaces;
 
 namespace Application.Activities
 {
@@ -15,9 +16,11 @@ namespace Application.Activities
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
+            private readonly IUserAccessor _userAccessor;
 
-            public Handler(DataContext context, IMapper mapper)
+            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
             {
+                _userAccessor = userAccessor;
                 _context = context;
                 _mapper = mapper;
             }
@@ -26,7 +29,10 @@ namespace Application.Activities
             {
                 var activities = await _context
                     .Activities
-                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider)
+                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider, new
+                    {
+                        currentUsername = _userAccessor.GetUsername()
+                    })
                     .ToListAsync();
 
                 return Result<List<ActivityDto>>
