@@ -99,6 +99,8 @@ const Profiles = {
   deletePhoto: (id: string) => requests.del<void>(`/photos/${id}`),
   updateProfile: (profileForm: Partial<Profile>) =>
     requests.put("profiles", profileForm),
+  updateFollowing: (username: string) =>
+    requests.post(`/follow/${username}`, {}),
 };
 
 const agent = {
