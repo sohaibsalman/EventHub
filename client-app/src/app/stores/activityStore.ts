@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { v4 as uuid } from "uuid";
 
 import agent from "../api/agent";
@@ -16,9 +16,17 @@ export default class ActivityStore {
   loadingInitial = false;
   pagination: Pagination | null = null;
   pagingParams = new PagingParams();
+  predicate = new Map().set("all", true);
 
   constructor() {
     makeAutoObservable(this);
+    reaction(
+      () => this.predicate.keys(),
+      () => {
+        this.pagingParams = new PagingParams();
+        this.activitiesRegistry.clear();
+      }
+    );
   }
 
   get activitiesByDate() {
@@ -62,11 +70,33 @@ export default class ActivityStore {
     this.pagingParams = pagingParams;
   };
 
+  setPredicate = (predicate: string, value: string | Date) => {
+    const resetPredicate = () => {
+      this.predicate.forEach((val, key) => {
+        if (key !== "startDate") this.predicate.delete(key);
+      });
+    };
+
+    if (predicate === "startDate") {
+      this.predicate.delete("startDate");
+      this.predicate.set("startDate", value);
+    } else {
+      resetPredicate();
+      this.predicate.set(predicate, value);
+    }
+  };
+
   get axiosParams() {
     const params = new URLSearchParams();
     params.append("pageNumber", this.pagingParams.pageNumber.toString());
     params.append("pageSize", this.pagingParams.pageSize.toString());
-
+    this.predicate.forEach((value, key) => {
+      if (key === "startDate") {
+        params.append(key, (value as Date).toISOString());
+      } else {
+        params.append(key, value);
+      }
+    });
     return params;
   }
 
