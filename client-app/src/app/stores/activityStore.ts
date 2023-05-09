@@ -6,6 +6,7 @@ import agent from "../api/agent";
 import { Activity, ActivityFormValues } from "../models/activity";
 import { store } from "./store";
 import { Profile } from "../models/profile";
+import { Pagination, PagingParams } from "../models/pagination";
 
 export default class ActivityStore {
   activitiesRegistry = new Map<string, Activity>();
@@ -13,6 +14,8 @@ export default class ActivityStore {
   editMode = false;
   loading = false;
   loadingInitial = false;
+  pagination: Pagination | null = null;
+  pagingParams = new PagingParams();
 
   constructor() {
     makeAutoObservable(this);
@@ -36,21 +39,36 @@ export default class ActivityStore {
     );
   }
 
-  loadActivities = async () => {
-    if (this.activitiesRegistry.size > 0) return;
-
-    this.setLoadingInitial(true);
+  loadActivities = async (isLoading: boolean = true) => {
+    if (isLoading) this.loadingInitial = true;
     try {
-      const activities = await agent.Activities.list();
-      activities.forEach((activity) => {
+      const result = await agent.Activities.list(this.axiosParams);
+      result.data.forEach((activity) => {
         this.setActivity(activity);
+        this.setPagination(result.pagination);
       });
     } catch (error) {
       console.log(error);
     } finally {
-      this.setLoadingInitial(false);
+      runInAction(() => (this.loadingInitial = false));
     }
   };
+
+  setPagination = (pagination: Pagination) => {
+    this.pagination = pagination;
+  };
+
+  setPagingParams = (pagingParams: PagingParams) => {
+    this.pagingParams = pagingParams;
+  };
+
+  get axiosParams() {
+    const params = new URLSearchParams();
+    params.append("pageNumber", this.pagingParams.pageNumber.toString());
+    params.append("pageSize", this.pagingParams.pageSize.toString());
+
+    return params;
+  }
 
   loadActivity = async (id: string) => {
     let activity = this.getActivity(id);
