@@ -2,7 +2,7 @@ import { makeAutoObservable, reaction, runInAction } from "mobx";
 
 import agent from "../api/agent";
 import { store } from "./store";
-import { Photo, Profile } from "../models/profile";
+import { Photo, Profile, UserActivity } from "../models/profile";
 
 export class ProfileStore {
   profile: Profile | null = null;
@@ -12,6 +12,8 @@ export class ProfileStore {
   followings: Profile[] = [];
   loadingFollowings = false;
   activeTab = 0;
+  userActivities: UserActivity[] = [];
+  loadingActivities = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -178,6 +180,21 @@ export class ProfileStore {
       console.log(error);
     } finally {
       runInAction(() => (this.loadingFollowings = false));
+    }
+  };
+
+  listActivities = async (username: string, predicate?: string) => {
+    this.loadingActivities = true;
+    try {
+      const activities = await agent.Profiles.listActivities(
+        username,
+        predicate!
+      );
+      runInAction(() => (this.userActivities = activities));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      runInAction(() => (this.loadingActivities = false));
     }
   };
 }
